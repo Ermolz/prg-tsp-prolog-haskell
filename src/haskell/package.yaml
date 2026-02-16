@@ -1,0 +1,23 @@
+name: tsp-haskell
+version: 0.1.0.0
+description: TSP solver for comparison with Prolog
+license: MIT
+author: Yermolovych
+
+dependencies:
+  - base >= 4.14
+
+library:
+  source-dirs: src
+  exposed-modules:
+    - TSP.IO
+    - TSP.Cost
+    - TSP.BruteForce
+
+executables:
+  tsp-exe:
+    main: Main.hs
+    source-dirs: app
+    ghc-options: -Wall
+    dependencies:
+      - tsp-haskell

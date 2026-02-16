@@ -1,0 +1,13 @@
+algo,lang,instance,n,cost,time_ms,tour
+bruteforce,prolog,n5_demo,5,,,
+clpfd,prolog,n5_demo,5,,,
+bruteforce,haskell,n5_demo,5,,,
+bruteforce,prolog,n8_01,8,,,
+clpfd,prolog,n8_01,8,,,
+bruteforce,haskell,n8_01,8,,,
+bruteforce,prolog,n10_01,10,,,
+clpfd,prolog,n10_01,10,,,
+bruteforce,haskell,n10_01,10,,,
+bruteforce,prolog,n12_01,12,,,
+clpfd,prolog,n12_01,12,,,
+bruteforce,haskell,n12_01,12,,,

@@ -1,0 +1,38 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.35.2.
+--
+-- see: https://github.com/sol/hpack
+
+name:           tsp-haskell
+version:        0.1.0.0
+description:    TSP solver for comparison with Prolog
+author:         Yermolovych
+maintainer:     Yermolovych
+license:        MIT
+build-type:     Simple
+
+library
+  exposed-modules:
+      TSP.IO
+      TSP.Cost
+      TSP.BruteForce
+  other-modules:
+      Paths_tsp_haskell
+  hs-source-dirs:
+      src
+  build-depends:
+      base >=4.14
+  default-language: Haskell2010
+
+executable tsp-exe
+  main-is: Main.hs
+  other-modules:
+      Paths_tsp_haskell
+  hs-source-dirs:
+      app
+  ghc-options: -Wall
+  build-depends:
+      base >=4.14
+    , tsp-haskell
+  default-language: Haskell2010
