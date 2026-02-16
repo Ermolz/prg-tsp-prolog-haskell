@@ -1,43 +1,59 @@
+% ПІБ: Yermolovych Zakhar Maksymovych
 % tsp_bruteforce_Yermolovych.pl
 % Модуль brute-force TSP: точний перебір усіх перестановок міст 2..N через permutation/2.
-% Тур замкнутий: [1,...,1]. Використовує aggregate_all/3 для ефективного пошуку мінімуму.
+% Тур замкнутий: [1,...,1]. Для вибору мінімуму використовується aggregate_all/3.
 
 :- module(tsp_bruteforce_Yermolovych, [tsp_bruteforce/3]).
 
-:- use_module(library(lists)).
-:- use_module(library(aggregate)).
+:- use_module(library(lists)).        % permutation/2, numlist/3, append/3
+:- use_module(library(aggregate)).    % aggregate_all/3
 :- use_module(tsp_common_Yermolovych, [tour_cost/3]).
+
+/* ------------------------------------------------------------------------
+   tsp_bruteforce/3
+   ------------------------------------------------------------------------ */
 
 %% tsp_bruteforce(++Matrix, --Tour, --Cost) is semidet.
 %  Purpose:
-%    Знаходить оптимальний замкнутий тур (початок і кінець у місті 1) і його мінімальну вартість.
-%    Перебирає всі перестановки міст 2..N, замикає цикл через 1, обчислює вартість і повертає
-%    одне найкраще рішення. Не зберігає всі кандидати — використовує aggregate_all(min/2).
+%    Обчислює оптимальний замкнутий TSP-тур, який починається і закінчується у місті 1,
+%    та його мінімальну вартість.
 %
-%  Modes (meaningful):
-%    1) (++Matrix, -Tour, -Cost)  Matrix задана, Tour і Cost — результат (оптимум).
+%  Ідея:
+%    1) Фіксується старт/фініш у місті 1.
+%    2) Перебираються всі перестановки міст 2..N (факторіальна кількість).
+%    3) Для кожного кандидата рахується tour_cost/3.
+%    4) aggregate_all/3 вибирає розв'язок з мінімальною вартістю.
 %
-%  Modes (not meaningful):
-%    (-Matrix, ?, ?)  Matrix обов'язкова (вхідні дані).
-%    (++Matrix, ++Tour, ++Cost)  Предикат генерує рішення, не перевіряє.
+%  Індикатори / призначення (змістовні):
+%    1) (++Matrix, --Tour, --Cost)  Matrix задана, Tour і Cost повертаються як оптимум.
 %
-%  Notes / built-ins:
-%    - aggregate_all/3: збирає всі розв'язки Goal і агрегує за шаблоном min(Cost, Witness),
-%      повертаючи мінімальну вартість і відповідний тур без збереження всіх кандидатів.
+%  Інші комбінації (пояснення відсутності змістовних призначень):
+%    - (-Matrix, ?, ?)        Немає сенсу генерувати матрицю для перебору.
+%    - (++Matrix, ++Tour, ?)  Не використовується як “перевірка туру”, бо задача — знайти оптимум.
+%    - (++Matrix, ?, ++Cost)  Перевірка на заданий Cost не є ціллю цього предикату (оптимізація).
+%
+%  Неочевидні built-ins:
+%    - must_be/2: перевіряє тип/конкретизацію аргументів; при порушенні кидає помилку.
+%    - aggregate_all/3: агрегує всі розв'язки Goal і повертає мінімум без збереження всіх кандидатів.
+%    - min/2 у aggregate_all: шаблон min(Cost, Witness) для пошуку мінімальної вартості.
 %
 /** <examples>
 ?- tsp_bruteforce([[0,2,9],[2,0,6],[9,6,0]], Tour, Cost).
-% очікується: Tour = [1,2,3,1], Cost = 17 (або інший оптимум).
+% Tour = [1,2,3,1],
+% Cost = 17.
 
 ?- tsp_bruteforce([[0,1],[1,0]], T, C).
-% очікується: T = [1,2,1], C = 2.
+% T = [1,2,1],
+% C = 2.
 
 ?- tsp_bruteforce(M, T, C).
-% очікується: instantiation_error або must_be.
+% ERROR: Type error: `list' expected, found _G... (an unbound variable)
 */
+% tsp_bruteforce(++Matrix, --Tour, --Cost).
 tsp_bruteforce(Matrix, Tour, Cost) :-
     must_be(list, Matrix),
     length(Matrix, N),
+    N >= 1,
     (   N =:= 1
     ->  Tour = [1, 1],
         Cost = 0
@@ -48,58 +64,73 @@ tsp_bruteforce(Matrix, Tour, Cost) :-
         )
     ).
 
+/* ------------------------------------------------------------------------
+   candidate_tour/4
+   ------------------------------------------------------------------------ */
+
 %% candidate_tour(++Matrix, ++N, --Tour, --Cost) is nondet.
 %  Purpose:
-%    Генерує кандидатні замкнені тури і їхню вартість (для мінімізації).
-%    Для кожної перестановки міст [2..N] будує тур [1|Perm]++[1] і обчислює вартість.
+%    Генерує всі кандидатні замкнені тури (через перестановки міст 2..N)
+%    та їхню вартість. Використовується як Goal для мінімізації у tsp_bruteforce/3.
 %
-%  Modes (meaningful):
-%    1) (++Matrix, ++N, -Tour, -Cost)  Matrix і N задані, Tour і Cost — вихідні (nondet).
+%  Індикатори / призначення (змістовні):
+%    1) (++Matrix, ++N, --Tour, --Cost)  Генератор (nondet) турів і вартостей.
 %
-%  Modes (not meaningful):
-%    (-Matrix, ?, ?, ?)  Matrix обов'язкова.
-%    (++, -N, ?, ?)  N обчислюється з Matrix зовні, не генерується тут.
+%  Інші комбінації (пояснення відсутності змістовних призначень):
+%    - (++, -N, ?, ?)     N має бути відомим (розмірність), не генерується тут.
+%    - (-Matrix, ?, ?, ?) Немає сенсу генерувати матрицю.
 %
-%  Notes / built-ins:
-%    - permutation/2: генерує перестановки списку (nondet). Використовується для перебору
-%      порядку відвідування міст 2..N.
+%  Неочевидні built-ins:
+%    - permutation/2: недетерміновано генерує всі перестановки списку.
+%    - numlist/3: будує список цілих [2..N] (список міст без 1).
 %
 /** <examples>
 ?- candidate_tour([[0,2,9],[2,0,6],[9,6,0]], 3, Tour, Cost).
-% очікується: множина розв'язків, напр. Tour=[1,2,3,1], Cost=17; Tour=[1,3,2,1], Cost=17; ...
+% Tour = [1,2,3,1],
+% Cost = 17 ;
+% Tour = [1,3,2,1],
+% Cost = 17 ;
+% false.
 
 ?- findall(C, candidate_tour([[0,1],[1,0]], 2, _, C), Cs).
-% очікується: Cs = [2] (єдина перестановка [2]).
+% Cs = [2].
 */
+% candidate_tour(++Matrix, ++N, --Tour, --Cost).
 candidate_tour(Matrix, N, Tour, Cost) :-
     must_be(list, Matrix),
     must_be(integer, N),
+    N >= 2,
     numlist(2, N, Cities),
     permutation(Cities, Perm),
     build_tour(Perm, Tour),
     tour_cost(Matrix, Tour, Cost).
 
-%% build_tour(+Perm, --Tour) is det.
+/* ------------------------------------------------------------------------
+   build_tour/2
+   ------------------------------------------------------------------------ */
+
+%% build_tour(++Perm, --Tour) is det.
 %  Purpose:
-%    Будує замкнутий тур: додає 1 на початок і 1 в кінець.
-%    Tour = [1|Perm] ++ [1], тобто [1, P1, P2, ..., Pk, 1].
+%    Будує замкнутий тур шляхом додавання 1 на початок і 1 в кінець:
+%    Tour = [1|Perm] ++ [1].
 %
-%  Modes (meaningful):
-%    1) (++Perm, -Tour)  Perm — порядок міст 2..N, Tour — замкнений тур.
+%  Індикатори / призначення (змістовні):
+%    1) (++Perm, --Tour)  Perm заданий, Tour повертається.
 %
-%  Modes (not meaningful):
-%    (-Perm, ?)  Perm генерується candidate_tour, не цією функцією.
+%  Інші комбінації (пояснення відсутності змістовних призначень):
+%    - (-Perm, ?)  Генерація Perm не є задачею цього предикату.
 %
-%  Notes / built-ins:
-%    - append/3: append([1], Perm, Temp), append(Temp, [1], Tour) — конкатенує списки.
+%  Неочевидні built-ins:
+%    - append/3: конкатенація списків.
 %
 /** <examples>
 ?- build_tour([2,3], Tour).
-% очікується: Tour = [1,2,3,1].
+% Tour = [1,2,3,1].
 
 ?- build_tour([], Tour).
-% очікується: Tour = [1,1] (N=1, лише місто 1).
+% Tour = [1,1].
 */
+% build_tour(++Perm, --Tour).
 build_tour(Perm, Tour) :-
     must_be(list, Perm),
     append([1], Perm, Temp),
