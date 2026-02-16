@@ -74,4 +74,4 @@
 ## 6) Прийняті припущення
 - ОС: Windows.
 - Prolog: SWI-Prolog.
-- Haskell: St
+- Haskell: Stack.

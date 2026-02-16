@@ -73,7 +73,15 @@ Bruteforce для N=12 не вимірювався через триваліст
 
 Детально: [docs/benchmarks.md](docs/benchmarks.md)
 
+## Джерела
+
+Перелік використаних джерел (теорія TSP, NP-складність, SWI-Prolog clpfd/lists, Haskell, Stack, датасети) та посилання на них — у [docs/materials.md](docs/materials.md).
+
 ## Документація
 
 - [docs/benchmarks.md](docs/benchmarks.md) — методика та спостереження
 - [docs/compare_prolog_haskell.md](docs/compare_prolog_haskell.md) — порівняння підходів
+- [docs/materials.md](docs/materials.md) — матеріали та джерела (теорія TSP, SWI-Prolog, Haskell, посилання)
+- [docs/io_spec.md](docs/io_spec.md) — специфікація формату вводу/виводу
+- [docs/requirements_task.md](docs/requirements_task.md) — вимоги до завдання
+- [docs/prolog_style.md](docs/prolog_style.md) — стиль та документація Prolog-коду
