@@ -84,4 +84,5 @@ Bruteforce для N=12 не вимірювався через триваліст
 - [docs/materials.md](docs/materials.md) — матеріали та джерела (теорія TSP, SWI-Prolog, Haskell, посилання)
 - [docs/io_spec.md](docs/io_spec.md) — специфікація формату вводу/виводу
 - [docs/requirements_task.md](docs/requirements_task.md) — вимоги до завдання
+- [docs/clpfd_explained.md](docs/clpfd_explained.md) — детальне пояснення застосування CLP(FD) у розв’язанні TSP
 - [docs/prolog_style.md](docs/prolog_style.md) — стиль та документація Prolog-коду

@@ -1,4 +1,4 @@
-% ПІБ: Yermolovych <Ім'я> <По батькові>
+% ПІБ: Yermolovych Zakhar Maksymovych
 % tsp_common_Yermolovych.pl
 % Загальні утиліти для TSP:
 % - обчислення вартості туру;
