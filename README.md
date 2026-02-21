@@ -1,5 +1,7 @@
 # TSP: Prolog ↔ Haskell
 
+**Відео тут:** [перейти до секції](#відео)
+
 ## Постановка задачі
 
 Знайти найкоротший замкнутий маршрут, що проходить через N міст рівно один раз і повертається до старту. Дано матрицю відстаней N*N. Потрібно знайти мінімальну вартість та відповідний тур.
@@ -86,3 +88,7 @@ Bruteforce для N=12 не вимірювався через триваліст
 - [docs/requirements_task.md](docs/requirements_task.md) — вимоги до завдання
 - [docs/clpfd_explained.md](docs/clpfd_explained.md) — детальне пояснення застосування CLP(FD) у розв’язанні TSP
 - [docs/prolog_style.md](docs/prolog_style.md) — стиль та документація Prolog-коду
+
+## Відео
+
+[Google Drive — переглянути відео](https://drive.google.com/file/d/1xglQxtqyPsay5SX7UJbVLLHso8DyySFt/view?usp=sharing)
